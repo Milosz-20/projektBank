@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -79,7 +80,14 @@ public class PaymentService {
             response.put("message", "Karta wygasła lub nieprawidłowa data ważności");
             return response;
         }
-
+        if (paymentRequest.getCvv().length() != 3 ) {
+            response.put("status", "failed");
+            response.put("message", "CVV musi mieć 3 cyfry");
+        } else if (!Objects.equals(karta.getCvv(), paymentRequest.getCvv())) {
+            response.put("status", "failed");
+            response.put("message", "Nieprawidłowy kod CVV");
+            return response;
+        }
         // Get the associated account
         Integer kontoId = karta.getKontoId();
         Optional<Konto> kontoOptional = kontoRepository.findById(kontoId);
@@ -87,6 +95,12 @@ public class PaymentService {
         if (kontoOptional.isEmpty()) {
             response.put("status", "failed");
             response.put("message", "Nie znaleziono powiązanego konta");
+            return response;
+        }
+
+        if (paymentRequest.getAmount().compareTo(karta.getLimitKarty()) > 0) {
+            response.put("status", "failed");
+            response.put("message", "Przekroczono limit karty");
             return response;
         }
 

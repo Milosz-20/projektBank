@@ -20,6 +20,7 @@ public class Karta {
     @Column(name = "termin_waznosci")
     private LocalDate terminWaznosci;
 
+    @Column(name = "cvv")
     private String cvv;
 
     @Column(name = "limit_karty")

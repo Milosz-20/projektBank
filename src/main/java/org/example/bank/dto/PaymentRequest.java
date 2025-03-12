@@ -6,12 +6,20 @@ public class PaymentRequest {
     private String cardNumber;
     private String expiryMonth;
     private String expiryYear;
+    private String cvv;
     private BigDecimal amount;
 
     // Constructors
     public PaymentRequest() {}
 
-    // Getters and setters
+    public String getCvv() {
+        return cvv;
+    }
+
+    public void setCvv(String cvv) {
+        this.cvv = cvv;
+}
+
     public String getCardNumber() {
         return cardNumber;
     }
