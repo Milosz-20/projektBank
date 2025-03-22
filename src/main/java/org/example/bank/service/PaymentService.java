@@ -35,7 +35,6 @@ public class PaymentService {
     public Map<String, Object> processPayment(PaymentRequest paymentRequest) {
         Map<String, Object> response = new HashMap<>();
 
-        // Find card by number
         Optional<Karta> cardOptional = kartaRepository.findByNumerKarty(paymentRequest.getCardNumber());
 
         if (cardOptional.isEmpty()) {
@@ -46,14 +45,11 @@ public class PaymentService {
 
         Karta karta = cardOptional.get();
 
-        // Validate expiry date
         LocalDate cardExpiryDate = karta.getTerminWaznosci();
 
-        // Parse the expiry date from MM/YYYY format
         YearMonth providedExpiryDate;
 
         try {
-            // Check if the year is 2 or 4 digits
             if (paymentRequest.getExpiryYear().length() == 2) {
                 providedExpiryDate = YearMonth.of(
                         Integer.parseInt("20" + paymentRequest.getExpiryYear()),
@@ -74,7 +70,6 @@ public class PaymentService {
         YearMonth cardExpiryYearMonth = YearMonth.from(cardExpiryDate);
         YearMonth currentMonth = YearMonth.now();
 
-        // Check if the card has expired or if the provided date doesn't match
         if (!cardExpiryYearMonth.equals(providedExpiryDate) || cardExpiryYearMonth.isBefore(currentMonth)) {
             response.put("status", "failed");
             response.put("message", "Karta wygasła lub nieprawidłowa data ważności");
@@ -114,11 +109,9 @@ public class PaymentService {
             return response;
         }
 
-        // Deduct the amount from the account balance
         konto.setSaldo(konto.getSaldo().subtract(amount));
         kontoRepository.save(konto);
 
-        // Create transaction record
         Transakcja transakcja = new Transakcja();
         transakcja.setKartaId(karta.getId());
         transakcja.setKwota(amount);
@@ -126,7 +119,6 @@ public class PaymentService {
         transakcja.setTypTransakcji("ZAKUP");
         transakcjaRepository.save(transakcja);
 
-        // Return success response
         String transactionId = String.valueOf(transakcja.getId());
         response.put("status", "success");
         response.put("message", "Płatność została zaakceptowana");
@@ -134,4 +126,25 @@ public class PaymentService {
 
         return response;
     }
-}
+
+    @Transactional
+        public Map<String, Object> generateBlikCode(PaymentRequest paymentRequest) {
+            Map<String, Object> response = new HashMap<>();
+
+            int blikCode = 100000 + (int)(Math.random() * 900000);
+            long validityInMillis = 2 * 60 * 1000;
+
+            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
+
+            response.put("status", "success");
+            response.put("message", "Wygenerowano kod BLIK");
+            response.put("blikCode", String.valueOf(blikCode));
+            response.put("expiryTime", expiryTime);
+            response.put("validityInMillis", validityInMillis);
+
+            System.out.println("Wygenerowano kod BLIK: " + blikCode + " ważny do: " + expiryTime);
+
+            return response;
+        }
+    }
+

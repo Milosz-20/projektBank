@@ -13,10 +13,20 @@ public class Klient {
     private String nazwisko;
     private String adres;
     private String telefon;
-    private String email;
 
     @Column(name = "data_urodzenia")
     private LocalDate dataUrodzenia;
+
+    @Column(unique = true)
+    private String email;
+    private String haslo;
+
+    public void setHaslo(String haslo) {
+        this.haslo = haslo;
+    }
+    public String getHaslo() {
+        return haslo;
+    }
 
 
     public Klient() {

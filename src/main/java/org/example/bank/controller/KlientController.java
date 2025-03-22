@@ -23,4 +23,5 @@ public class KlientController {
     public List<Klient> getAllKlienci() {
         return klientService.getAllKlienci();
     }
+
 }
