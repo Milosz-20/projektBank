@@ -1,6 +1,7 @@
 package org.example.bank.service;
 
 import org.example.bank.dto.PaymentRequest;
+import org.example.bank.model.Blik;
 import org.example.bank.model.Karta;
 import org.example.bank.model.Konto;
 import org.example.bank.model.Transakcja;
@@ -135,6 +136,10 @@ public class PaymentService {
             long validityInMillis = 2 * 60 * 1000;
 
             LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
+
+
+            Blik blik = new Blik();
+//            blik.setKontoId();
 
             response.put("status", "success");
             response.put("message", "Wygenerowano kod BLIK");
