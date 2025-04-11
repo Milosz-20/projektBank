@@ -5,6 +5,7 @@ import org.example.bank.model.Blik;
 import org.example.bank.model.Karta;
 import org.example.bank.model.Konto;
 import org.example.bank.model.Transakcja;
+import org.example.bank.repository.BlikRepository;
 import org.example.bank.repository.KartaRepository;
 import org.example.bank.repository.KontoRepository;
 import org.example.bank.repository.TransakcjaRepository;
@@ -25,11 +26,13 @@ public class PaymentService {
     private final KartaRepository kartaRepository;
     private final KontoRepository kontoRepository;
     private final TransakcjaRepository transakcjaRepository;
+    private final BlikRepository blikRepository;
 
-    public PaymentService(KartaRepository kartaRepository, KontoRepository kontoRepository, TransakcjaRepository transakcjaRepository) {
+    public PaymentService(KartaRepository kartaRepository, KontoRepository kontoRepository, TransakcjaRepository transakcjaRepository, BlikRepository blikRepository) {
         this.kartaRepository = kartaRepository;
         this.kontoRepository = kontoRepository;
         this.transakcjaRepository = transakcjaRepository;
+        this.blikRepository = blikRepository;
     }
 
     @Transactional
@@ -129,7 +132,7 @@ public class PaymentService {
     }
 
     @Transactional
-        public Map<String, Object> generateBlikCode(PaymentRequest paymentRequest) {
+        public Map<String, Object> generateBlikCode(Integer kontoId) {
             Map<String, Object> response = new HashMap<>();
 
             int blikCode = 100000 + (int)(Math.random() * 900000);
@@ -139,7 +142,10 @@ public class PaymentService {
 
 
             Blik blik = new Blik();
-//            blik.setKontoId();
+            blik.setKontoId(kontoId);
+            blik.setKodBlik(blikCode);
+            blik.setDataWygasniecia(expiryTime);
+            blikRepository.save(blik);
 
             response.put("status", "success");
             response.put("message", "Wygenerowano kod BLIK");

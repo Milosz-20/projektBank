@@ -3,8 +3,8 @@ package org.example.bank.model;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Blik")
@@ -18,7 +18,7 @@ public class Blik {
     private int kodBlik;
 
     @Column
-    private LocalDate dataWygasniecia;
+    private LocalDateTime dataWygasniecia;
 
 
     public Integer getKontoId() {
@@ -37,11 +37,11 @@ public class Blik {
         this.kodBlik = kodBlik;
     }
 
-    public LocalDate getDataWygasniecia() {
+    public LocalDateTime getDataWygasniecia() {
         return dataWygasniecia;
     }
 
-    public void setDataWygasniecia(LocalDate dataWygasniecia) {
+    public void setDataWygasniecia(LocalDateTime dataWygasniecia) {
         this.dataWygasniecia = dataWygasniecia;
     }
 
