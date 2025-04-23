@@ -1,6 +1,8 @@
 package org.example.bank.service;
 
+import org.example.bank.model.Karta;
 import org.example.bank.model.Konto;
+import org.example.bank.repository.KartaRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -12,9 +14,11 @@ import java.util.stream.Collectors;
 @Service
 public class KontoService {
     private final org.example.bank.repository.KontoRepository kontoRepository;
+    private final KartaRepository kartaRepository;
 
-    public KontoService(org.example.bank.repository.KontoRepository kontoRepository) {
+    public KontoService(org.example.bank.repository.KontoRepository kontoRepository, KartaRepository kartaRepository) {
         this.kontoRepository = kontoRepository;
+        this.kartaRepository = kartaRepository;
     }
 
     public List<BigDecimal> getSaldo(Integer kontoId) {
@@ -36,5 +40,16 @@ public class KontoService {
         return kontaKlienta.stream()
                 .map(Konto::getSaldo)
                 .collect(Collectors.toList());
+    }
+
+    public java.util.stream.Stream<Karta> getKarty(Long kontoId) {
+        System.out.println("GET KARTY dla konta: " + kontoId);
+        List<Karta> karty = kartaRepository.findByKontoId(kontoId.intValue());
+        
+        if (karty.isEmpty()) {
+            throw new RuntimeException("Konto o ID " + kontoId + " nie ma przypisanych żadnych kart");
+        }
+        
+        return karty.stream();
     }
 }

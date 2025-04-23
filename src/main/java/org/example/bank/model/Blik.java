@@ -1,9 +1,6 @@
 package org.example.bank.model;
 
-
-import jakarta.persistence.*;
-
-import java.time.LocalDate;
+import jakarta.persistence.*; // Upewnij się, że importy są poprawne dla Jakarta EE
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,21 +9,32 @@ public class Blik {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer kontoId;
+    private Integer id;
 
-    @Column
+    @Column(nullable = false)
+    private Integer kartaId;
+
+    @Column(nullable = false)
     private int kodBlik;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime dataWygasniecia;
 
-
-    public Integer getKontoId() {
-        return kontoId;
+    // Gettery i settery dla nowego pola id
+    public Integer getId() {
+        return id;
     }
 
-    public void setKontoId(Integer kontoId) {
-        this.kontoId = kontoId;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getKartaId() {
+        return kartaId;
+    }
+
+    public void setKartaId(Integer kontoId) {
+        this.kartaId = kontoId;
     }
 
     public int getKodBlik() {
@@ -44,5 +52,4 @@ public class Blik {
     public void setDataWygasniecia(LocalDateTime dataWygasniecia) {
         this.dataWygasniecia = dataWygasniecia;
     }
-
 }

@@ -152,8 +152,11 @@ public class PaymentService {
             return response;
         }
 
-        Integer kontoId = blik.getKontoId();
+        Integer kontoId = blik.getKartaId();
         Optional<Konto> kontoOptional = kontoRepository.findById(kontoId);
+
+        System.out.println("KONTO ID: " + kontoId);
+        System.out.println("KONTO: " + kontoOptional);
 
         if (kontoOptional.isEmpty()) {
             response.put("status", "failed");
@@ -166,6 +169,7 @@ public class PaymentService {
 
 
         if (konto.getSaldo().compareTo(amount) < 0) {
+            System.out.println("AMOUNT:"+amount + " " + konto.getSaldo());
             response.put("status", "failed");
             response.put("message", "Niewystarczające środki na koncie");
             return response;
@@ -202,11 +206,11 @@ public class PaymentService {
             LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
 
 
-            Blik blik = new Blik();
-            blik.setKontoId(kontoId);
-            blik.setKodBlik(blikCode);
-            blik.setDataWygasniecia(expiryTime);
-            blikRepository.save(blik);
+        Blik blik = new Blik();
+        blik.setKartaId(kontoId);
+        blik.setKodBlik(blikCode);
+        blik.setDataWygasniecia(expiryTime);
+        blikRepository.save(blik);
 
             response.put("status", "success");
             response.put("message", "Wygenerowano kod BLIK");
