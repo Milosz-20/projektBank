@@ -19,8 +19,9 @@ public class KontoService {
 
     public List<BigDecimal> getSaldo(Integer kontoId) {
         Optional<Konto> konto = kontoRepository.findById(kontoId);
+        System.out.println("GET SALDO" + kontoId);
         if (konto.isPresent()) {
-            return getSaldaKlienta(konto.get().getKlientId());
+            return getSaldaKlienta(kontoId);
         } else {
             throw new RuntimeException("Konto o podanym ID nie istnieje");
         }
@@ -28,6 +29,7 @@ public class KontoService {
 
     public List<BigDecimal> getSaldaKlienta(Integer klientId) {
         List<Konto> kontaKlienta = kontoRepository.findByKlientId(klientId);
+        System.out.println("GET SALDA KLIENTA" + klientId);
         if (kontaKlienta.isEmpty()) {
             throw new RuntimeException("Klient o podanym ID nie ma żadnych kont");
         }

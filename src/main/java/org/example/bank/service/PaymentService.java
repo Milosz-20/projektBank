@@ -17,10 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PaymentService {
@@ -136,32 +133,61 @@ public class PaymentService {
     public Map<String, Object> processPaymentBlik(BlikPaymentRequest paymentRequest) {
         Map<String, Object> response = new HashMap<>();
 
-        Optional<Blik> blikOptional = blikRepository.findByKodBlik(paymentRequest.getBlikCode());
+        Integer blikCode = Integer.valueOf(paymentRequest.getBlikCode());
 
-        if (blikOptional.isPresent()) {
-            Blik blik = blikOptional.get();
+        Optional<Blik> blikOptional = blikRepository.findByKodBlik(blikCode);
 
-            LocalDateTime dataWygasniecia = blik.getDataWygasniecia();
-
-            if (dataWygasniecia.isAfter(LocalDateTime.now())) {
-                response.put("status", "failed");
-                response.put("message", "Kod blik wygasł");
-            } else {
-                Integer kontoId = paymentRequest.getIdKonta();
-                Optional<Konto> kontoOptional = kontoRepository.findById(kontoId);
-
-                if (kontoOptional.isEmpty()) {
-                    response.put("status", "failed");
-                    response.put("message", "Nie znaleziono powiązanego konta");
-                    return response;
-                }
-            }
-        } else {
+        if (blikOptional.isEmpty()) {
             response.put("status", "failed");
-            response.put("message", "Nie znaleziono blik");
-
-
+            response.put("message", "Nieprawidłowy kod BLIK");
+            return response;
         }
+
+        Blik blik = blikOptional.get();
+        LocalDateTime dataWygasniecia = blik.getDataWygasniecia();
+
+        if (dataWygasniecia.isBefore(LocalDateTime.now())) {
+            response.put("status", "failed");
+            response.put("message", "Kod BLIK wygasł");
+            return response;
+        }
+
+        Integer kontoId = blik.getKontoId();
+        Optional<Konto> kontoOptional = kontoRepository.findById(kontoId);
+
+        if (kontoOptional.isEmpty()) {
+            response.put("status", "failed");
+            response.put("message", "Nie znaleziono konta powiązanego z kodem BLIK");
+            return response;
+        }
+
+        Konto konto = kontoOptional.get();
+        BigDecimal amount = paymentRequest.getAmount();
+
+
+        if (konto.getSaldo().compareTo(amount) < 0) {
+            response.put("status", "failed");
+            response.put("message", "Niewystarczające środki na koncie");
+            return response;
+        }
+
+        konto.setSaldo(konto.getSaldo().subtract(amount));
+        kontoRepository.save(konto);
+
+        Transakcja transakcja = new Transakcja();
+        transakcja.setKartaId(konto.getId());
+        transakcja.setKwota(amount);
+        transakcja.setData(LocalDateTime.now());
+        transakcja.setTypTransakcji("BLIK");
+        transakcjaRepository.save(transakcja);
+
+        // Opcjonalnie: Można usunąć lub oznaczyć kod BLIK jako użyty, aby zapobiec ponownemu użyciu
+        // blikRepository.delete(blik);
+
+        String transactionId = String.valueOf(transakcja.getId());
+        response.put("status", "success");
+        response.put("message", "Płatność BLIK została zaakceptowana");
+        response.put("transactionId", transactionId);
 
         return response;
     }

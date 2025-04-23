@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface BlikRepository extends JpaRepository<Blik, Integer> {
-    Optional<Blik> findByKodBlik(String kodBlik);
+    Optional<Blik> findByKodBlik(Integer kodBlik);
 }
