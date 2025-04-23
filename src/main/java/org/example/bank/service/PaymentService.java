@@ -1,5 +1,6 @@
 package org.example.bank.service;
 
+import org.example.bank.dto.BlikPaymentRequest;
 import org.example.bank.dto.PaymentRequest;
 import org.example.bank.model.Blik;
 import org.example.bank.model.Karta;
@@ -127,6 +128,40 @@ public class PaymentService {
         response.put("status", "success");
         response.put("message", "Płatność została zaakceptowana");
         response.put("transactionId", transactionId);
+
+        return response;
+    }
+
+    @Transactional
+    public Map<String, Object> processPaymentBlik(BlikPaymentRequest paymentRequest) {
+        Map<String, Object> response = new HashMap<>();
+
+        Optional<Blik> blikOptional = blikRepository.findByKodBlik(paymentRequest.getBlikCode());
+
+        if (blikOptional.isPresent()) {
+            Blik blik = blikOptional.get();
+
+            LocalDateTime dataWygasniecia = blik.getDataWygasniecia();
+
+            if (dataWygasniecia.isAfter(LocalDateTime.now())) {
+                response.put("status", "failed");
+                response.put("message", "Kod blik wygasł");
+            } else {
+                Integer kontoId = paymentRequest.getIdKonta();
+                Optional<Konto> kontoOptional = kontoRepository.findById(kontoId);
+
+                if (kontoOptional.isEmpty()) {
+                    response.put("status", "failed");
+                    response.put("message", "Nie znaleziono powiązanego konta");
+                    return response;
+                }
+            }
+        } else {
+            response.put("status", "failed");
+            response.put("message", "Nie znaleziono blik");
+
+
+        }
 
         return response;
     }
