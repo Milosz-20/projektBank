@@ -41,7 +41,7 @@ public class PaymentService {
 
         if (cardOptional.isEmpty()) {
             response.put("status", "failed");
-            response.put("message", "Karta nie istnieje");
+            response.put("message", "Card does not exist");
             return response;
         }
 
@@ -65,7 +65,7 @@ public class PaymentService {
             }
         } catch (NumberFormatException e) {
             response.put("status", "failed");
-            response.put("message", "Nieprawidłowy format daty ważności");
+            response.put("message", "Invalid expiry date format");
             return response;
         }
 
@@ -74,40 +74,39 @@ public class PaymentService {
 
         if (!cardExpiryYearMonth.equals(providedExpiryDate) || cardExpiryYearMonth.isBefore(currentMonth)) {
             response.put("status", "failed");
-            response.put("message", "Karta wygasła lub nieprawidłowa data ważności");
+            response.put("message", "Card expired or invalid expiry date");
             return response;
         }
         if (paymentRequest.getCvv().length() != 3 ) {
             response.put("status", "failed");
-            response.put("message", "CVV musi mieć 3 cyfry");
+            response.put("message", "CVV must be 3 digits");
         } else if (!Objects.equals(karta.getCvv(), paymentRequest.getCvv())) {
             response.put("status", "failed");
-            response.put("message", "Nieprawidłowy kod CVV");
+            response.put("message", "Invalid CVV code");
             return response;
         }
-        // Get the associated account
+
         Integer kontoId = karta.getKontoId();
         Optional<Konto> kontoOptional = kontoRepository.findById(kontoId);
 
         if (kontoOptional.isEmpty()) {
             response.put("status", "failed");
-            response.put("message", "Nie znaleziono powiązanego konta");
+            response.put("message", "Associated account not found");
             return response;
         }
 
         if (paymentRequest.getAmount().compareTo(karta.getLimitKarty()) > 0) {
             response.put("status", "failed");
-            response.put("message", "Przekroczono limit karty");
+            response.put("message", "Card limit exceeded");
             return response;
         }
 
         Konto konto = kontoOptional.get();
         BigDecimal amount = paymentRequest.getAmount();
 
-        // Check if account has sufficient funds
         if (konto.getSaldo().compareTo(amount) < 0) {
             response.put("status", "failed");
-            response.put("message", "Niewystarczające środki na koncie");
+            response.put("message", "Insufficient funds in the account");
             return response;
         }
 
@@ -123,7 +122,7 @@ public class PaymentService {
 
         String transactionId = String.valueOf(transakcja.getId());
         response.put("status", "success");
-        response.put("message", "Płatność została zaakceptowana");
+        response.put("message", "Payment has been accepted");
         response.put("transactionId", transactionId);
 
         return response;
@@ -139,7 +138,7 @@ public class PaymentService {
 
         if (blikOptional.isEmpty()) {
             response.put("status", "failed");
-            response.put("message", "Nieprawidłowy kod BLIK");
+            response.put("message", "Invalid BLIK code");
             return response;
         }
 
@@ -148,7 +147,7 @@ public class PaymentService {
 
         if (dataWygasniecia.isBefore(LocalDateTime.now())) {
             response.put("status", "failed");
-            response.put("message", "Kod BLIK wygasł");
+            response.put("message", "BLIK code has expired");
             return response;
         }
 
@@ -160,7 +159,7 @@ public class PaymentService {
 
         if (kontoOptional.isEmpty()) {
             response.put("status", "failed");
-            response.put("message", "Nie znaleziono konta powiązanego z kodem BLIK");
+            response.put("message", "Account associated with BLIK code not found");
             return response;
         }
 
@@ -171,7 +170,7 @@ public class PaymentService {
         if (konto.getSaldo().compareTo(amount) < 0) {
             System.out.println("AMOUNT:"+amount + " " + konto.getSaldo());
             response.put("status", "failed");
-            response.put("message", "Niewystarczające środki na koncie");
+            response.put("message", "Insufficient funds in the account");
             return response;
         }
 
@@ -185,12 +184,9 @@ public class PaymentService {
         transakcja.setTypTransakcji("BLIK");
         transakcjaRepository.save(transakcja);
 
-        // Opcjonalnie: Można usunąć lub oznaczyć kod BLIK jako użyty, aby zapobiec ponownemu użyciu
-        // blikRepository.delete(blik);
-
         String transactionId = String.valueOf(transakcja.getId());
         response.put("status", "success");
-        response.put("message", "Płatność BLIK została zaakceptowana");
+        response.put("message", "BLIK payment has been accepted");
         response.put("transactionId", transactionId);
 
         return response;
@@ -213,7 +209,7 @@ public class PaymentService {
         blikRepository.save(blik);
 
             response.put("status", "success");
-            response.put("message", "Wygenerowano kod BLIK");
+            response.put("message", "BLIK code generated");
             response.put("blikCode", String.valueOf(blikCode));
             response.put("expiryTime", expiryTime);
             response.put("validityInMillis", validityInMillis);
@@ -223,4 +219,3 @@ public class PaymentService {
             return response;
         }
     }
-

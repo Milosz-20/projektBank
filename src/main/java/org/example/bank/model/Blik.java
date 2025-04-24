@@ -20,7 +20,7 @@ public class Blik {
     @Column(nullable = false)
     private LocalDateTime dataWygasniecia;
 
-    // Gettery i settery dla nowego pola id
+
     public Integer getId() {
         return id;
     }

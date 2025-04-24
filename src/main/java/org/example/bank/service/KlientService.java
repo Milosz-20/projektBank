@@ -30,21 +30,20 @@ public class KlientService {
         Optional<Klient> klientOpt = klientRepository.findByEmail(loginRequest.getEmail());
         if (klientOpt.isPresent()) {
             Klient klient = klientOpt.get();
-            // Tymczasowo porównujemy hasła bezpośrednio (bez szyfrowania)
+            // for now without hashing
             if (loginRequest.getHaslo().equals(klient.getHaslo())) {
                 response.put("status", "success");
-                response.put("message", "Logowanie udane");
+                response.put("message", "Login successful");
                 response.put("klientId", klient.getId());
                 System.out.println("Zalogowano klienta: " + klient.getImie() + " " + klient.getNazwisko());
-                // Tu można dodać generowanie tokenu JWT
             } else {
                 response.put("status", "error");
-                response.put("message", "Nieprawidłowe hasło");
+                response.put("message", "Invalid password");
                 System.out.println("Nieprawidłowe hasło dla klienta: " + klient.getImie() + " " + klient.getNazwisko());
             }
         } else {
             response.put("status", "error");
-            response.put("message", "Użytkownik o podanym adresie email nie istnieje");
+            response.put("message", "User with the provided email does not exist");
             System.out.println("Nie znaleziono klienta o adresie email: " + loginRequest.getEmail());
         }
 

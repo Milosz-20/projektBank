@@ -27,7 +27,7 @@ public class KontoService {
         if (konto.isPresent()) {
             return getSaldaKlienta(kontoId);
         } else {
-            throw new RuntimeException("Konto o podanym ID nie istnieje");
+            throw new RuntimeException("Account with given ID does not exist");
         }
     }
 
@@ -35,7 +35,7 @@ public class KontoService {
         List<Konto> kontaKlienta = kontoRepository.findByKlientId(klientId);
         System.out.println("GET SALDA KLIENTA" + klientId);
         if (kontaKlienta.isEmpty()) {
-            throw new RuntimeException("Klient o podanym ID nie ma żadnych kont");
+            throw new RuntimeException("Client with given ID has no accounts");
         }
         return kontaKlienta.stream()
                 .map(Konto::getSaldo)
@@ -45,11 +45,11 @@ public class KontoService {
     public java.util.stream.Stream<Karta> getKarty(Long kontoId) {
         System.out.println("GET KARTY dla konta: " + kontoId);
         List<Karta> karty = kartaRepository.findByKontoId(kontoId.intValue());
-        
+
         if (karty.isEmpty()) {
-            throw new RuntimeException("Konto o ID " + kontoId + " nie ma przypisanych żadnych kart");
+            throw new RuntimeException("Account with ID " + kontoId + " has no assigned cards");
         }
-        
+
         return karty.stream();
     }
 }
